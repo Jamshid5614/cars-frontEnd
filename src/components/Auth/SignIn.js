@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState,useContext } from "react";
 import { Form, Input, Button } from "antd";
 import axios from "axios";
-import { Link,useHistory } from "react-router-dom";
+import GlobalContext from '../../context/GlobalContext';
+import {useHistory,Link} from 'react-router-dom';
 
 export default function SignIn() {
+  const {handleUser} = useContext(GlobalContext);
   const history = useHistory();
   const [user, setUser] = useState({
     email: "",
@@ -21,6 +23,7 @@ export default function SignIn() {
       if (!res.data.success) {
         setErrorMessage(res.data.message);
       } else {
+        handleUser(res.data.data);
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("user", JSON.stringify(res.data.data));
         history.push("/cars");

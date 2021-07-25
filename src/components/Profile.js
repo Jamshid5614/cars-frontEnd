@@ -1,18 +1,22 @@
-import { useState, useRef,useEffect } from "react";
+import { useState, useRef,useEffect,useContext } from "react";
 import Header from "./Header";
 import axios from "axios";
 import {useHistory} from 'react-router-dom';
 import { AiOutlineCamera } from "react-icons/all";
+import GlobalContext from '../context/GlobalContext';
 
 export default function Profile() {
+
   const history = useHistory()
   const profileImg = useRef();
+
+  const {handleProfileImg,handleUser,user: profileUser} = useContext(GlobalContext);
 
   const nameInputRef = useRef();
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
 
-  let profileUser = JSON.parse(localStorage.getItem("user"));
+  // let profileUser = user;
   const initialUserState = {
     name: profileUser.name,
     email: profileUser.email,
@@ -41,21 +45,24 @@ export default function Profile() {
 
   const getProfile = () => {
     axios.get("/profile/" + profileUser._id).then((res) => {
-      setUser(res.data);
-      localStorage.setItem("user", JSON.stringify(res.data.data));
-      profileUser = res.data.data;
+      if(res.data.success) {
+        handleUser(res.data.data);
+        setUser(res.data);
+        localStorage.setItem("user", JSON.stringify(res.data.data));
+      } else {
+        localStorage.clear();
+        history.push('/sign-in');
+        console.log(res.data.message)
+      }
     })
-    .catch(err => {
-      localStorage.clear();
-      history.push('/sign-in');
-    });
   };
 
   useEffect(() => {
+    handleProfileImg(userImage)
     setInterval(() => {
       getProfile();
     }, 120000)
-  },[])
+  },[]);
   
   const submitHandle = () => {
 
@@ -69,18 +76,16 @@ export default function Profile() {
     axios
       .patch("/profile/" + profileUser._id, data)
       .then((res) => {
-        if (res.data.success) {
-          setUser(res.data);
-          localStorage.setItem("user", JSON.stringify(res.data.data));
-          profileUser = res.data.data;
+        if(res.data.success) {
+            handleUser(res.data.data);
+            setUser(res.data);
+            localStorage.setItem("user", JSON.stringify(res.data.data));
         } else {
           localStorage.clear();
+          history.push('/sign-in');
+          console.log(res.data.message)
         }
       })
-      .catch((err) => {
-        localStorage.clear();
-        history.push('/sign-in');
-      });
   };
 
   const inputHandle = (e) => {

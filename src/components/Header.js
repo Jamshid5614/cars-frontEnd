@@ -1,9 +1,13 @@
+import {useContext} from 'react';
 import { Link } from "react-router-dom";
 import DefaultProfileImage from "../assets/images/profileDefault.jpg";
 import { Navbar } from "react-bootstrap";
+import GlobalContext from '../context/GlobalContext';
 
 export default function HeaderComponent() {
-  const logOutHAndle = () => {
+  const {profileImg} = useContext(GlobalContext);
+  console.log(profileImg);
+  const logOutHandle = () => {
     localStorage.clear();
   };
   return (
@@ -23,14 +27,18 @@ export default function HeaderComponent() {
             <Link
               to="/sign-in"
               className="btn btn-outline-danger me-2"
-              onClick={logOutHAndle}
+              onClick={logOutHandle}
             >
               Log out
             </Link>
             <Link to="/profile">
               <img
-                src={DefaultProfileImage}
+                src={profileImg || DefaultProfileImage}
                 height="40px"
+                width="40px"
+                style={{
+                  borderRadius: '50%'
+                }}
                 alt="default profile"
               />
             </Link>
